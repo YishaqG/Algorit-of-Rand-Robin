@@ -92,7 +92,7 @@ void create_user(usersCtrl *ctrlU)
   char *name = create_string_mem(TAM_BUFF);
   if((uid = set_uid(ctrlU->front)) > 0)
   {
-    if(set_name(name,"usuario") >= 0)
+    if(set_name(name,"usuario") >= 0)//falta hacer que lo pida de uevo si pasa el tam
     {
       if(ctrlU->front == NULL)
       {
@@ -182,89 +182,114 @@ int del_user(pcbCtrl *ctrl, pcbStates *states, usersCtrl *us)
   int i;
   printf("<< Eliminación de usuario >>\n");
 
-  if( ctrl->front != NULL )
-    if( us->front != NULL )
-    {
-      int eleccion; //Eleccion de grupo
-      users *elm = NULL; //Grupo
+  if( us->front != NULL )
+  {
+    int eleccion; //Eleccion de grupo
+    users *elm = NULL; //Grupo
 
+    do
+    {
+      printf("Escoja el usuario a eliminar:\n");
+      show_users(us);
       do
       {
-        printf("Escoja el usuario a eliminar:\n");
-        show_users(us);
-        do
-        {
-          scanf("%i", &eleccion);
-          getchar();
-        }while(val_npos(eleccion, 0) == FAIL);
-        elm = find_user(eleccion, us->front);
-      }while( val_mem( (void *) elm) );
+        scanf("%i", &eleccion);
+        getchar();
+      }while(val_npos(eleccion, 0) == FAIL);
+      elm = find_user(eleccion, us->front);
+    }while( val_mem( (void *) elm) );
 
+    if(elm->pcbU->front != NULL)
+    {
       int tam = list_lenghtU( elm->pcbU );
       int i = 0;
 
       if(tam > 0)
       {
         temp = elm->pcbU->front;
-          do
-          {
-            if(temp->state == 4)
-              i++;
-          }while( next_pcbU(temp = elm->pcbU->front) != FAIL);
+        do
+        {
+          if(temp->state == 4)
+          i++;
+        }while( next_pcbU(temp = elm->pcbU->front) != FAIL);
       }
 
-        if(i == tam)
+      if(i == tam)
+      {
+
+        do //Ciclo para eliminar los procesos relacionados al usuario
         {
-
-          do //Ciclo para eliminar los procesos relacionados al usuario
+          if(elm->pcbU->front == elm->pcbU->rear)
           {
-            if(elm->pcbU->front == elm->pcbU->rear)
-            {
-              del_pcss_reaper(ctrl, states, elm->pcbU->front);
-              elm->pcbU->rear = elm->pcbU->front = NULL;
-              break;
-            }
-            else
-            {
-              pcb *aux = elm->pcbU->front;
-              elm->pcbU->front = elm->pcbU->front->userSense->next;
-              elm->pcbU->front->userSense->prev = elm->pcbU->rear;
-              elm->pcbU->rear->userSense->next = elm->pcbU->front;
-              del_pcss_reaper(ctrl, states, aux);
-            }
-          }while(1);
-
-          if(us->front == us->rear)
-            us->front = us->rear = NULL;
+            del_pcss_reaper(ctrl, states, elm->pcbU->front);
+            elm->pcbU->rear = elm->pcbU->front = NULL;
+            break;
+          }
           else
-            if(elm == us->front)
-            {
-              us->front = us->front->sense->next;
-              us->front->sense->prev = us->rear;
-              us->rear->sense->next = us->front;
-            }
-            else
-              if(elm == us->rear)
-              {
-                us->rear = us->rear->sense->prev;
-                us->front->sense->prev = us->rear;
-                us->rear->sense->next = us->front;
-              }
-              else
-              {
-                elm->sense->next->sense->prev = elm->sense->prev;
-                elm->sense->prev->sense->next = elm->sense->next;
-              }
-          free( elm );
+          {
+            pcb *aux = elm->pcbU->front;
+            elm->pcbU->front = elm->pcbU->front->userSense->next;
+            elm->pcbU->front->userSense->prev = elm->pcbU->rear;
+            elm->pcbU->rear->userSense->next = elm->pcbU->front;
+            del_pcss_reaper(ctrl, states, aux);
+          }
+        }while(1);
+
+        if(us->front == us->rear)
+        us->front = us->rear = NULL;
+        else
+        if(elm == us->front)
+        {
+          us->front = us->front->sense->next;
+          us->front->sense->prev = us->rear;
+          us->rear->sense->next = us->front;
         }
         else
-          printf("No se puede eliminar el grupo, tiene procesos pendientes.\n");
-
+        if(elm == us->rear)
+        {
+          us->rear = us->rear->sense->prev;
+          us->front->sense->prev = us->rear;
+          us->rear->sense->next = us->front;
+        }
+        else
+        {
+          elm->sense->next->sense->prev = elm->sense->prev;
+          elm->sense->prev->sense->next = elm->sense->next;
+        }
+        free( elm );
+      }
+      else
+      printf("No se puede eliminar el grupo, tiene procesos pendientes.\n");
     }
     else
-      printf("No existen grupos.\n");
+    {
+      if(us->front == us->rear)
+      us->front = us->rear = NULL;
+      else
+      if(elm == us->front)
+      {
+        us->front = us->front->sense->next;
+        us->front->sense->prev = us->rear;
+        us->rear->sense->next = us->front;
+      }
+      else
+      if(elm == us->rear)
+      {
+        us->rear = us->rear->sense->prev;
+        us->front->sense->prev = us->rear;
+        us->rear->sense->next = us->front;
+      }
+      else
+      {
+        elm->sense->next->sense->prev = elm->sense->prev;
+        elm->sense->prev->sense->next = elm->sense->next;
+      }
+      free( elm );
+    }
+
+  }
   else
-    printf("%s\n", EMPTY_FAIL);
+    printf("No existen usuarios.\n");
 
 }
 /*0_Eliminacion de usuario junto con sus procesos*/

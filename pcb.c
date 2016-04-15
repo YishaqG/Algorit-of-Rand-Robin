@@ -270,7 +270,6 @@ void create_process(int cpp,pcbCtrl *ctrl, pcbStates *states, groupsCtrl *ctrlG,
                 ctrl->front->user = u;
                 ctrl->front->group = g;
 
-                printf(":P\n");
                 /*asignación del proceso a la lista de
                 procesos del grupo correspondiente*/
                 g->pcbG->front = ctrl->front;
@@ -279,8 +278,6 @@ void create_process(int cpp,pcbCtrl *ctrl, pcbStates *states, groupsCtrl *ctrlG,
                 g->pcbG->front->groupSense->prev = g->pcbG->rear;
                 g->pcbG->front->groupSense->next = g->pcbG->rear;
                 g->pcbG->rear->groupSense->next = g->pcbG->front;
-
-                printf(":P2\n");
 
                 /*asignación del proceso a la lista de
                 procesos del usuario correspondiente*/
@@ -291,16 +288,12 @@ void create_process(int cpp,pcbCtrl *ctrl, pcbStates *states, groupsCtrl *ctrlG,
                 u->pcbU->front->userSense->next = u->pcbU->rear;
                 u->pcbU->rear->userSense->next = u->pcbU->front;
 
-                printf(":P3\n");
-
                 /*Se hace circular la lista que controla la pcb*/
                 ctrl->rear = ctrl->front; //Igualamos el frente y el fondo
                 ctrl->rear->sense->next = ctrl->front;
                 ctrl->rear->sense->prev = ctrl->front;
                 ctrl->front->sense->prev = ctrl->rear;
                 ctrl->front->sense->next = ctrl->rear;
-
-                printf(":P4\n");
 
                 /*Asignamos la lista de ejecucion */
                 states->readys->front = ctrl->front;
@@ -347,9 +340,9 @@ void create_process(int cpp,pcbCtrl *ctrl, pcbStates *states, groupsCtrl *ctrlG,
                 procesos del grupo correspondiente*/
                 /*En caso de que el grupo no tenga procesos
                 asignados  */
-                if(g->pcbG == NULL)
+                if(g->pcbG->front == NULL)
                 {
-                  g->pcbG->front = ctrl->front;
+                  g->pcbG->front = ctrl->rear;
                   g->pcbG->rear = g->pcbG->front;
                   g->pcbG->rear->groupSense->prev = g->pcbG->front;
                   g->pcbG->front->groupSense->prev = g->pcbG->rear;
@@ -371,9 +364,9 @@ void create_process(int cpp,pcbCtrl *ctrl, pcbStates *states, groupsCtrl *ctrlG,
                 procesos del usuario correspondiente*/
                 /*En caso de que el usuario no tenga procesos
                 asignados  */
-                if(u->pcbU == NULL)
+                if(u->pcbU->front == NULL)
                 {
-                  u->pcbU->front = ctrl->front;
+                  u->pcbU->front = ctrl->rear;
                   u->pcbU->rear = u->pcbU->front;
                   u->pcbU->rear->userSense->prev = u->pcbU->front;
                   u->pcbU->front->userSense->prev = u->pcbU->rear;
@@ -398,8 +391,6 @@ void create_process(int cpp,pcbCtrl *ctrl, pcbStates *states, groupsCtrl *ctrlG,
         }
       }
     }
-
-
   }
 }
 
@@ -626,7 +617,7 @@ void show_everything(pcbCtrl *ctrl, pcbStates *states, groupsCtrl *ctrlG, usersC
             {
               do
               {
-                printf("%s desde donde comenzar a ver los procesos.\n",SELEC);
+                printf("\n%s desde donde comenzar a ver los procesos.\n",SELEC);
                 printf("(1) Desde el inicio.\n(2) Desde el fin.\n(3) Cancelar.\n");
                 scanf("%i",&how);
                 getchar();
@@ -637,7 +628,7 @@ void show_everything(pcbCtrl *ctrl, pcbStates *states, groupsCtrl *ctrlG, usersC
                   {
                     /*Muestra los procesos por estado a partir del inicio*/
                     case 1:
-                      state = print_states();
+                      state = print_states(0);
                       switch(state)
                       {
                         case 1:
@@ -745,7 +736,7 @@ void show_everything(pcbCtrl *ctrl, pcbStates *states, groupsCtrl *ctrlG, usersC
                   {
                     /*Muestra los procesos por estado a partir del fin*/
                     case 1:
-                      state = print_states();
+                      state = print_states(0);
                       switch(state)
                       {
                         case 1:
@@ -865,13 +856,12 @@ void show_everything(pcbCtrl *ctrl, pcbStates *states, groupsCtrl *ctrlG, usersC
 int del_pcss(pcbCtrl *ctrl, pcbStates *states)
 {
   pcb *elm;
-  printf("<< Eliminación de proceso >>\n");
-
-  if( ctrl->front != NULL )
+  if( states->sleeping->front != NULL )
   {
       int eleccion; //Eleccion de grupo
       elm = NULL;
 
+      printf("<< Eliminación de proceso >>\n");
       do
       {
         printf("Escoja el proceso a eliminar:\n");
@@ -884,18 +874,13 @@ int del_pcss(pcbCtrl *ctrl, pcbStates *states)
           }while(val_npos(eleccion, 0) == FAIL);
           elm = find_pcb(eleccion, states->sleeping->front);
         }
-        else
-        {
-          printf("No hay procesos dormidos. Solo los procesos dormimos pueden ser eliminados.\n");
-          break;
-        }
       }while( val_mem( (void *) elm) );
 
       del_pcss_reaper(ctrl, states, elm);
 
   }
   else
-    printf("%s.\n",EMPTY_FAIL);
+    printf("%s para eliminar. Solo los procesos dormidos pueden ser eliminados.\n",EMPTY_FAIL);
 }
 /*0_Eliminacion de grupo junto con sus procesos*/
 
@@ -1041,7 +1026,7 @@ void state_change(pcbCtrl *ctrl, pcbStates *states)
     }while( val_mem( (void *) elm) );
 
     printf("Nuevo estado del proceso:\n");
-    estado = print_states();
+    estado = print_states(1);
 
     switch (estado)
     {
@@ -1069,6 +1054,8 @@ void state_change(pcbCtrl *ctrl, pcbStates *states)
             }
             else
               printf("No se puede cambiar el proceso a este estado.\n");
+        break;
+      case 5:
         break;
       default:
         printf("Estado inexistente o imposible operar con el, cambios habilitadsos de Dormido-Listo y de Esperando-Listo.\n");

@@ -9,6 +9,8 @@ int prev_group(groups **aux, groups *r);//Para desplazarse.
 int del_grupo(pcbCtrl *ctrl, pcbStates *states, groupsCtrl *gp);
 int list_lenghtG(pcbCtrl *ctrl);
 int set_group(groups **g, groupsCtrl *ctrlG);
+int check_name(groups *front,char*n);
+int repeat_names(groups *front,char *name);
 
 /*Crea la memoria para alojar un grupo*/
 groups* create_group_mem()
@@ -92,7 +94,7 @@ void create_group(groupsCtrl *ctrlG)
   char *name = create_string_mem(TAM_BUFF);
   if((gid = set_gid(ctrlG->front)) > 0)
   {
-    if(set_name(name,"grupo") >= 0)
+    if(check_name(ctrlG->front,name) >= 0)
     {
       if(ctrlG->front == NULL)
       {
@@ -169,36 +171,36 @@ int del_grupo(pcbCtrl *ctrl, pcbStates *states, groupsCtrl *gp)
   int i;
   pcb *temp;
   printf("<< Eliminación de grupo >>\n");
+  if( gp->front != NULL )
+  {
+    int eleccion; //Eleccion de grupo
+    groups *elm = NULL; //Grupo
 
-  if( ctrl->front != NULL )
-    if( gp->front != NULL )
+    do
     {
-      int eleccion; //Eleccion de grupo
-      groups *elm = NULL; //Grupo
-
+      printf("%s el grupo a eliminar:\n",SELEC);
+      show_groups(gp);
       do
       {
-        printf("Escoja el grupo a eliminar:\n");
-        show_groups(gp);
-        do
-        {
-          scanf("%i", &eleccion);
-          getchar();
-        }while(val_npos(eleccion, 0) == FAIL);
-        elm = find_group(eleccion, gp->front);
-      }while( val_mem( (void *) elm) );
+        scanf("%i", &eleccion);
+        getchar();
+      }while(val_npos(eleccion, 0) == FAIL);
+      elm = find_group(eleccion, gp->front);
+    }while( val_mem( (void *) elm) );
 
+    if( elm->pcbG->front != NULL )
+    {
       int tam = list_lenghtG( elm->pcbG ); //Obtenemos la cantidad de procesos relacionados con el grupo
 
       if(tam > 0) //Comprobamos tener al menos un proceso
       {
         int i = 0;
         temp = elm->pcbG->front;
-          do //Ciclo para recorrer todos los procesos relacionados y contar los dormidos
-          {
-            if(temp->state == 4)
-              i++;
-          }while( next_pcbG(temp = elm->pcbG->front) != FAIL);
+        do //Ciclo para recorrer todos los procesos relacionados y contar los dormidos
+        {
+          if(temp->state == 4)
+          i++;
+        }while( next_pcbG(temp = elm->pcbG->front) != FAIL);
       }
 
       if(i == tam) //El número de procesos dormidos es igual a la cantidad de procesos que tenemos
@@ -223,35 +225,60 @@ int del_grupo(pcbCtrl *ctrl, pcbStates *states, groupsCtrl *gp)
 
 
         if(gp->front == gp->rear) //Caso en el que solo haya un grupo en la lista de grupos
-          gp->front = gp->rear = NULL;
+        gp->front = gp->rear = NULL;
         else
-          if(elm == gp->front)  //Caso en el que el grupo a eliminar sea el primero de la lista
-          {
-            gp->front = gp->front->sense->next;
-            gp->front->sense->prev = gp->rear;
-            gp->rear->sense->next = gp->front;
-          }
-          else
-            if(elm == gp->rear) //Caso en el que el grupo a eliminar sea el ultimo de la lista
-            {
-              gp->rear = gp->rear->sense->prev;
-              gp->front->sense->prev = gp->rear;
-              gp->rear->sense->next = gp->front;
-            }
-            else  //Caso en el que el grupo a eliminar sea cualquier otro elemento
-            {
-              elm->sense->next->sense->prev = elm->sense->prev;
-              elm->sense->prev->sense->next = elm->sense->next;
-            }
+        if(elm == gp->front)  //Caso en el que el grupo a eliminar sea el primero de la lista
+        {
+          gp->front = gp->front->sense->next;
+          gp->front->sense->prev = gp->rear;
+          gp->rear->sense->next = gp->front;
+        }
+        else
+        if(elm == gp->rear) //Caso en el que el grupo a eliminar sea el ultimo de la lista
+        {
+          gp->rear = gp->rear->sense->prev;
+          gp->front->sense->prev = gp->rear;
+          gp->rear->sense->next = gp->front;
+        }
+        else  //Caso en el que el grupo a eliminar sea cualquier otro elemento
+        {
+          elm->sense->next->sense->prev = elm->sense->prev;
+          elm->sense->prev->sense->next = elm->sense->next;
+        }
         free( elm );
       }
       else
-        printf("No se puede eliminar el grupo, tiene procesos pendientes.\n");
+      printf("No se puede eliminar el grupo, tiene procesos pendientes.\n");
     }
     else
-      printf("No existen grupos.\n");
+    {
+      if(gp->front == gp->rear) //Caso en el que solo haya un grupo en la lista de grupos
+      gp->front = gp->rear = NULL;
+      else
+      if(elm == gp->front)  //Caso en el que el grupo a eliminar sea el primero de la lista
+      {
+        gp->front = gp->front->sense->next;
+        gp->front->sense->prev = gp->rear;
+        gp->rear->sense->next = gp->front;
+      }
+      else
+      if(elm == gp->rear) //Caso en el que el grupo a eliminar sea el ultimo de la lista
+      {
+        gp->rear = gp->rear->sense->prev;
+        gp->front->sense->prev = gp->rear;
+        gp->rear->sense->next = gp->front;
+      }
+      else  //Caso en el que el grupo a eliminar sea cualquier otro elemento
+      {
+        elm->sense->next->sense->prev = elm->sense->prev;
+        elm->sense->prev->sense->next = elm->sense->next;
+      }
+      free( elm );
+    }
+  }
   else
-    printf("No existen procesos.\n");
+    printf("No existen grupos.\n");
+
 
 }
 /*0_Eliminacion de grupo junto con sus procesos*/
@@ -288,6 +315,75 @@ int set_group(groups **g, groupsCtrl *ctrlG)
         flag = FAIL;
         break;
       }
+    }
+  }while(1);
+
+  return flag;
+}
+
+
+/**/
+int repeat_names(groups *front,char *name)
+{
+  int flag = 0;
+  groups *f = front;
+  if(front != NULL)
+  {
+    do
+    {
+      if(strcmp(f->n,name) == 0)
+      {
+        printf(":P\n");
+        flag = FAIL;
+        break;
+      }
+    }while(next_group(&f,front) != FAIL);
+  }
+
+  return flag;
+}
+
+/**/
+int check_name(groups *front,char*n)
+{
+
+  int aux,flag = 0;
+  do
+  {
+    printf("Ingrese el nombre del nuevo grupo: \n");
+    scanf("%[^\n]", n);
+
+    if(strlen(n) > TAM_BUFF)
+    {
+      if(cancel("creacion del grupo") == 0)
+      {
+        check_name(front,n);
+        break;
+      }
+      else
+      {
+        flag = FAIL;
+        break;
+      }
+    }
+    else
+    {
+      if(repeat_names(front,n) == FAIL)
+      {
+        printf("%s\n",REP_FAIL);
+        if(cancel("creacion del grupo") == 0)
+        {
+          check_name(front,n);
+          break;
+        }
+        else
+        {
+          flag = FAIL;
+          break;
+        }
+      }
+      else
+        break;
     }
   }while(1);
 

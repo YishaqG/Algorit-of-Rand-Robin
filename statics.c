@@ -1,6 +1,6 @@
 /*Prototipos de funciones*/
 int val_num(int x);
-int print_states();
+int print_states(int flag);
 void print_options(int t);
 char* create_string_mem(int tam);
 int val_npos(int v, int flag);
@@ -56,7 +56,7 @@ void print_options(int t)
   }
 }
 
-int print_states()
+int print_states(int flag)
 {
   int est;
 
@@ -67,6 +67,9 @@ int print_states()
     printf("(2) %s.\n",LIS);
     printf("(3) %s.\n",ESP);
     printf("(4) %s.\n",DOR);
+
+    if(flag == 1)
+      printf("(5) Cancelar");
 
     scanf("%i",&est);
     getchar();
@@ -191,7 +194,7 @@ int set_name(char *name, char what[])
   {
     printf("Ingrese el nombre del nuevo %s: \n",what);
     scanf("%[^\n]", name);
-    //getchar();
+
     if(strlen(name) > TAM_BUFF)
     {
       if(cancel("creacion del grupo") == 1)
@@ -206,6 +209,6 @@ int set_name(char *name, char what[])
       break;
   }while(1);
 
-  //printf("%i\n",flag);
+
   return flag;
 }

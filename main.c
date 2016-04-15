@@ -93,13 +93,33 @@ int main()
       }
     }while(op != 8);
 
-
-    pcb *aux = ctrl->front;
-    while( next_pcb(&aux,ctrl->front) != FAIL )
+    if(ctrl->front != NULL)
+    {
+      pcb *aux = ctrl->front;
+      while( next_pcb(&aux,ctrl->front) != FAIL )
       free(aux);
+    }
+
+    if(ctrlG->front != NULL)
+    {
+      groups *aux = ctrlG->front;
+      while( next_group(&aux,ctrlG->front) != FAIL )
+      free(aux);
+    }
+
+    if(ctrlU->front != NULL)
+    {
+      users *aux = ctrlU->front;
+      while( next_user(&aux,ctrlU->front) != FAIL )
+      free(aux);
+    }
 
     free(ctrl->front);
+    free(ctrlG->front);
+    free(ctrlU->front);
     free(ctrl);
+    free(ctrlG);
+    free(ctrlU);
   }
 
   return 0;
