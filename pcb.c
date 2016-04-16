@@ -439,13 +439,13 @@ void rr(pcbStates *states, pcbCtrl *ctrl, int quantum, int *totalTime)
     {
       if(states->readys->front == states->readys->rear)
       {
-        printf("Proceso comenzando ejecución en tiempo: %i\n",*totalTime);
+        printf("Proceso comenzando ejecución en tiempo: %i\n\n",*totalTime);
         states->readys->front->state = ID_EJEC;
         states->readys->front->first_exe = 1;
         if(states->readys->front->tim[1] <= quantum)
         {
           *totalTime += execute(quantum,states->readys->front);
-          printf("Proceso terminando ejecucion en tiempo: %i\n",*totalTime);
+          printf("\nProceso terminando ejecucion en tiempo: %i\n\n",*totalTime);
           temp = find_pcb(states->readys->front->pid,ctrl->front);
           temp->state = ID_LIS;
           changer(states->sleeping,temp,states);
@@ -454,7 +454,7 @@ void rr(pcbStates *states, pcbCtrl *ctrl, int quantum, int *totalTime)
         else
         {
           *totalTime += execute(quantum,states->readys->front);
-          printf("Proceso terminando ejecucion en tiempo: %i\n",*totalTime);
+          printf("\nProceso terminando ejecucion en tiempo: %i\n\n",*totalTime);
           temp = states->readys->front;
           temp->state = ID_LIS;
           changer(states->waiting, states->readys->front, states);
@@ -463,12 +463,12 @@ void rr(pcbStates *states, pcbCtrl *ctrl, int quantum, int *totalTime)
       }
       else
       {
-        printf("Proceso comenzando ejecución en tiempo: %i\n",*totalTime);
+        printf("Proceso comenzando ejecución en tiempo: %i\n\n",*totalTime);
         states->readys->front->state = ID_EJEC;
         if(states->readys->front->tim[1] <= quantum)
         {
           *totalTime += execute(quantum,states->readys->front);
-          printf("Proceso terminando ejecucion en tiempo: %i\n",*totalTime);
+          printf("\nProceso terminando ejecucion en tiempo: %i\n\n",*totalTime);
           temp = find_pcb(states->readys->front->pid,ctrl->front);
           temp->state = ID_ESP;
           changer(states->sleeping,temp,states);
@@ -476,7 +476,7 @@ void rr(pcbStates *states, pcbCtrl *ctrl, int quantum, int *totalTime)
         else
         {
           *totalTime += execute(quantum,states->readys->front);
-          printf("Proceso terminando ejecucion en tiempo: %i\n",*totalTime);
+          printf("\nProceso terminando ejecucion en tiempo: %i\n\n",*totalTime);
           temp = states->readys->front;
           temp->state = ID_LIS;
           changer(states->waiting, states->readys->front, states);
@@ -488,12 +488,12 @@ void rr(pcbStates *states, pcbCtrl *ctrl, int quantum, int *totalTime)
     {
       if(states->readys->front == states->readys->rear)
       {
-        printf("Proceso comenzando ejecución en tiempo: %i\n",*totalTime);
+        printf("Proceso comenzando ejecución en tiempo: %i\n\n",*totalTime);
         states->readys->front->state = ID_EJEC;
         if(states->readys->front->tim[1] <= quantum)
         {
           *totalTime += execute(states->readys->front->tim[1],states->readys->front);
-          printf("Proceso terminando ejecucion en tiempo: %i\n",*totalTime);
+          printf("Proceso terminando ejecucion en tiempo: %i\n\n",*totalTime);
           temp = states->readys->front;
           temp->state = ID_LIS;
           changer(states->sleeping,temp,states);
@@ -502,18 +502,18 @@ void rr(pcbStates *states, pcbCtrl *ctrl, int quantum, int *totalTime)
         else
         {
           *totalTime += execute(quantum,states->readys->front);
-          printf("Proceso terminando ejecucion en tiempo: %i\n",*totalTime);
+          printf("Proceso terminando ejecucion en tiempo: %i\n\n",*totalTime);
           states->readys->front->state = ID_LIS;
         }
       }
       else
       {
-        printf("Proceso comenzando ejecución en tiempo: %i\n",*totalTime);
+        printf("Proceso comenzando ejecución en tiempo: %i\n\n",*totalTime);
         states->readys->front->state = ID_EJEC;
         if(states->readys->front->tim[1] <= quantum)
         {
           *totalTime += execute(states->readys->front->tim[1],states->readys->front);
-          printf("Proceso terminando ejecucion en tiempo: %i\n",*totalTime);
+          printf("Proceso terminando ejecucion en tiempo: %i\n\n",*totalTime);
           temp = states->readys->front;
           temp->state = ID_LIS;
           changer(states->sleeping,temp,states);
@@ -522,7 +522,7 @@ void rr(pcbStates *states, pcbCtrl *ctrl, int quantum, int *totalTime)
         else
         {
           *totalTime += execute(quantum,states->readys->front);
-          printf("Proceso terminando ejecucion en tiempo: %i\n",*totalTime);
+          printf("Proceso terminando ejecucion en tiempo: %i\n\n",*totalTime);
           states->readys->front->state = ID_LIS;
           states->readys->front->stateSense->next->stateSense->prev = states->readys->rear;
           states->readys->rear = states->readys->front;
@@ -550,6 +550,7 @@ int execute(int t,pcb *exec)
       break;
     print_options(2);
     print_pcbInfo(exec);
+    printf("\n");
   }
 
   return i;
@@ -568,7 +569,9 @@ void show_pcb(pcbCtrl *ctrl)
     {
       print_pcbInfo(f);
     }while(next_pcb(&f, ctrl->front) != FAIL);
+    printf("\n");
   }
+
 }
 /*Muestra los procesos en funcion a lo que el usuario quiera
 ver, puede ser por estado, grupo, usuario, o momento de
@@ -587,6 +590,7 @@ void show_everything(pcbCtrl *ctrl, pcbStates *states, groupsCtrl *ctrlG, usersC
     printf("%s que desea ver\n",SELEC);
     print_options(3);
     printf("(4) Cancelar.\n");
+    printf("\n>");
     scanf("%i",&ch);
     getchar();
 
@@ -611,6 +615,7 @@ void show_everything(pcbCtrl *ctrl, pcbStates *states, groupsCtrl *ctrlG, usersC
           {
             print_options(1);
             printf("(5) Cancelar.\n");
+            printf("\n>");
             scanf("%i",&what);
             getchar();
             if(what != 5)
@@ -619,6 +624,7 @@ void show_everything(pcbCtrl *ctrl, pcbStates *states, groupsCtrl *ctrlG, usersC
               {
                 printf("\n%s desde donde comenzar a ver los procesos.\n",SELEC);
                 printf("(1) Desde el inicio.\n(2) Desde el fin.\n(3) Cancelar.\n");
+                printf("\n>");
                 scanf("%i",&how);
                 getchar();
 
@@ -682,6 +688,7 @@ void show_everything(pcbCtrl *ctrl, pcbStates *states, groupsCtrl *ctrlG, usersC
                     case 2:
                       printf("%s el grupo del que desea ver sus procesos.\n",SELEC);
                       show_groups(ctrlG);
+                      printf("\n>");
                       scanf("%i",&gid);
                       getchar();
                       group = find_group(gid,ctrlG->front);
@@ -702,6 +709,7 @@ void show_everything(pcbCtrl *ctrl, pcbStates *states, groupsCtrl *ctrlG, usersC
                     case 3:
                       printf("%s el usuario de los procesos a mostrar.\n",SELEC);
                       show_users(ctrlU);
+                      printf("\n>");
                       scanf("%i",&uid);
                       getchar();
                       user = find_user(uid,ctrlU->front);
@@ -787,6 +795,7 @@ void show_everything(pcbCtrl *ctrl, pcbStates *states, groupsCtrl *ctrlG, usersC
                     case 2:
                       printf("%s el grupo del que desea ver sus procesos.\n",SELEC);
                       show_groups(ctrlG);
+                      printf("\n>");
                       scanf("%i",&gid);
                       getchar();
                       group = find_group(gid,ctrlG->front);
@@ -806,6 +815,7 @@ void show_everything(pcbCtrl *ctrl, pcbStates *states, groupsCtrl *ctrlG, usersC
                     case 3:
                       printf("%s el usuario de los procesos a mostrar.\n",SELEC);
                       show_users(ctrlU);
+                      printf("\n>");
                       scanf("%i",&uid);
                       getchar();
                       user = find_user(uid,ctrlU->front);
@@ -861,14 +871,16 @@ int del_pcss(pcbCtrl *ctrl, pcbStates *states)
       int eleccion; //Eleccion de grupo
       elm = NULL;
 
-      printf("<< Eliminación de proceso >>\n");
+      printf("\n<< Eliminación de proceso >>\n");
       do
       {
-        printf("Escoja el proceso a eliminar:\n");
+        printf("Escoja el proceso a eliminar:\n\n");
+        print_options(2);
         if( show_pcb_sleeping(states) )
         {
           do
           {
+            printf("\n>");
             scanf("%i", &eleccion);
             getchar();
           }while(val_npos(eleccion, 0) == FAIL);
@@ -1015,17 +1027,18 @@ void state_change(pcbCtrl *ctrl, pcbStates *states)
   {
     do
     {
-      printf("Introduzca el ID del proceso al cual desea cambiar su estado:\n");
+      printf("\nIntroduzca el ID del proceso al cual desea cambiar su estado:\n");
       show_pcb(ctrl);
       do
       {
+        printf("\n>");
         scanf("%i", &eleccion);
         getchar();
       }while(val_npos(eleccion, 0) == FAIL);
       elm = find_pcb(eleccion, ctrl->front);
     }while( val_mem( (void *) elm) );
 
-    printf("Nuevo estado del proceso:\n");
+    printf("\nNuevo estado del proceso:\n");
     estado = print_states(1);
 
     switch (estado)
@@ -1035,7 +1048,7 @@ void state_change(pcbCtrl *ctrl, pcbStates *states)
           {
             do
             {
-              printf("Introduzca el nuevo tiempo del proceso:\n");
+              printf("Introduzca el nuevo tiempo del proceso:\n>");
               scanf("%i",&t);
               getchar();
             }while(val_npos(t, 0) != FAIL);
@@ -1241,6 +1254,7 @@ void del_option(pcbCtrl *ctrl, pcbStates *states, groupsCtrl *gp, usersCtrl *us)
       printf("(1)Grupo.\n");
       printf("(2)Usuario.\n");
       printf("(3)Proceso.\n");
+      printf("\n>");
       scanf("%i", &opc);
       getchar();
     }while( (opc <= 0) && (opc > 3) );

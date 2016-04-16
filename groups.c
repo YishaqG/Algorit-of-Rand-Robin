@@ -93,7 +93,7 @@ void create_group(groupsCtrl *ctrlG)
   int gid;
   char *name = create_string_mem(TAM_BUFF);
   if((gid = set_gid(ctrlG->front)) > 0)
-  {
+  {    
     if(check_name(ctrlG->front,name) >= 0)
     {
       if(ctrlG->front == NULL)
@@ -137,13 +137,14 @@ void show_groups(groupsCtrl *ctrlG)
   {
     f = ctrlG->front;
 
-    printf("%s\n","GRUPOS EXISTENTES" );
+  printf("\n\n    GRUPOS EXISTENTES\n");
     printf("|%7s|%15s|\n","ID","Descripcion");
     printf("=========================\n");
     do
     {
       printf("|(%5i)|%15s|\n",f->gid,f->n);
     }while(next_group(&f,ctrlG->front) != FAIL);
+    printf("\n");
   }
   else
     printf("No se han creado grupos.\n");
@@ -170,7 +171,7 @@ int del_grupo(pcbCtrl *ctrl, pcbStates *states, groupsCtrl *gp)
 {
   int i;
   pcb *temp;
-  printf("<< Eliminación de grupo >>\n");
+  printf("\n<< Eliminación de grupo >>\n");
   if( gp->front != NULL )
   {
     int eleccion; //Eleccion de grupo
@@ -182,6 +183,7 @@ int del_grupo(pcbCtrl *ctrl, pcbStates *states, groupsCtrl *gp)
       show_groups(gp);
       do
       {
+        printf("\n>");
         scanf("%i", &eleccion);
         getchar();
       }while(val_npos(eleccion, 0) == FAIL);
@@ -298,10 +300,10 @@ int set_group(groups **g, groupsCtrl *ctrlG)
   int gid,flag = 1;
   do
   {
-    printf("%s %s\n",SELEC, "un grupo");
+    printf("%s %s\n\n",SELEC, "un grupo");
     show_groups(ctrlG);
 
-    scanf("%i",&gid);
+    scanf(">%i",&gid);
     getchar();
 
     *g = find_group(gid,ctrlG->front);
@@ -333,7 +335,6 @@ int repeat_names(groups *front,char *name)
     {
       if(strcmp(f->n,name) == 0)
       {
-        printf(":P\n");
         flag = FAIL;
         break;
       }
@@ -351,6 +352,7 @@ int check_name(groups *front,char*n)
   do
   {
     printf("Ingrese el nombre del nuevo grupo: \n");
+    printf(">\n");
     scanf("%[^\n]", n);
 
     if(strlen(n) > TAM_BUFF)

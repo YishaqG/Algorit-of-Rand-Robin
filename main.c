@@ -51,6 +51,8 @@ int main()
   ctrlG = malloc(sizeof(groupsCtrl));
   ctrlU = malloc(sizeof(usersCtrl));
 
+  printf("\n");
+
   quantum = set_int("Quantum del programa", 1);
 
   if(val_npos(quantum, 1) != FAIL)
@@ -59,31 +61,39 @@ int main()
     {
       printf("\n \t\t<< SIMULACION DE ALGORITMO DE DESPACHO RONUD-ROBIN >>\n");
       print_options(0);
+      printf("\n>");
       scanf("%i",&op);
       getchar();
 
       switch(op)
       {
         case 1:
+        printf("\n");        
           create_group(ctrlG);
           break;
         case 2:
+        printf("\n");        
           create_user(ctrlU);
           break;
         case 3:
+        printf("\n");        
           create_process(cpp,ctrl,states,ctrlG,ctrlU);
           cpp++;
           break;
         case 4:
+        printf("\n");        
           state_change(ctrl,states);
           break;
         case 5:
+        printf("\n");        
           show_everything(ctrl,states,ctrlG,ctrlU);
           break;
         case 6:
+        printf("\n");        
           rr(states, ctrl, quantum, &totalTime);
           break;
         case 7:
+        printf("\n");        
           del_option(ctrl,states,ctrlG,ctrlU);
           break;
         case 8:

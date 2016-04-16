@@ -92,6 +92,7 @@ void create_user(usersCtrl *ctrlU)
   char *name = create_string_mem(TAM_BUFF);
   if((uid = set_uid(ctrlU->front)) > 0)
   {
+    printf("\n");
     if(set_name(name,"usuario") >= 0)//falta hacer que lo pida de uevo si pasa el tam
     {
       if(ctrlU->front == NULL)
@@ -135,13 +136,14 @@ void show_users(usersCtrl *ctrlU)
   {
     f = ctrlU->front;
 
-    printf("%s\n","USUARIOS EXISTENTES" );
+    printf("\n\n    USUARIOS EXISTENTES\n");
     printf("|%7s|%15s|\n","ID","Descripcion");
     printf("=========================\n");
     do
     {
       printf("|(%5i)|%15s|\n",f->uid,f->n);
     }while(next_user(&f,ctrlU->front) != FAIL);
+    printf("\n");
   }
   else
     printf("No se han creado usuarios.\n");
@@ -299,10 +301,10 @@ int set_user(users **u,usersCtrl *ctrlU)
   int uid,flag = 1;
   do
   {
-    printf("%s %s\n",SELEC, "un usuario");
+    printf("%s %s\n\n",SELEC, "un usuario");
     show_users(ctrlU);
 
-    scanf("%i",&uid);
+    scanf(">%i",&uid);
     getchar();
 
     *u = find_user(uid,ctrlU->front);

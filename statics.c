@@ -170,6 +170,7 @@ int set_int(char what[],int flag)
   do
   {
     printf("Ingrese %s: \n",what);
+    printf(">");
     scanf("%i",&temp);
     getchar();
     if(val_npos(temp,flag) != FAIL)
@@ -193,6 +194,7 @@ int set_name(char *name, char what[])
   do
   {
     printf("Ingrese el nombre del nuevo %s: \n",what);
+    printf(">");
     scanf("%[^\n]", name);
 
     if(strlen(name) > TAM_BUFF)
