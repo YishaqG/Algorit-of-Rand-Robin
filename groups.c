@@ -190,23 +190,26 @@ int del_grupo(pcbCtrl *ctrl, pcbStates *states, groupsCtrl *gp)
       elm = find_group(eleccion, gp->front);
     }while( val_mem( (void *) elm) );
 
+    printf("Procesando...\n");
     if( elm->pcbG->front != NULL )
     {
+      printf("Calculando la cantidad de procesos relacionados...\n");
       int tam = list_lenghtG( elm->pcbG ); //Obtenemos la cantidad de procesos relacionados con el grupo
-
       if(tam > 0) //Comprobamos tener al menos un proceso
       {
-        int i = 0;
+        i = 0;
         temp = elm->pcbG->front;
         do //Ciclo para recorrer todos los procesos relacionados y contar los dormidos
         {
-          if(temp->state == 4)
-          i++;
-        }while( next_pcbG(temp = elm->pcbG->front) != FAIL);
+          if(temp->state == ID_DOR)
+            i++;
+        }while( next_pcbG(&temp, elm->pcbG->front) != FAIL);
       }
+      printf("Procesos relacionados:\nDormidos: %i Otros:%i\n", i, tam);
 
       if(i == tam) //El número de procesos dormidos es igual a la cantidad de procesos que tenemos
       {
+        printf("Eliminando procesos relacionados al grupo...\n");
         do //Ciclo para eliminar los procesos relacionados al grupo
         {
           if(elm->pcbG->front == elm->pcbG->rear)
@@ -224,30 +227,32 @@ int del_grupo(pcbCtrl *ctrl, pcbStates *states, groupsCtrl *gp)
             del_pcss_reaper(ctrl, states, aux);
           }
         }while(1);
+        printf("Procesos eliminados.\n");
 
-
+        printf("Eliminando grupo...\n");
         if(gp->front == gp->rear) //Caso en el que solo haya un grupo en la lista de grupos
-        gp->front = gp->rear = NULL;
+          gp->front = gp->rear = NULL;
         else
-        if(elm == gp->front)  //Caso en el que el grupo a eliminar sea el primero de la lista
-        {
-          gp->front = gp->front->sense->next;
-          gp->front->sense->prev = gp->rear;
-          gp->rear->sense->next = gp->front;
-        }
-        else
-        if(elm == gp->rear) //Caso en el que el grupo a eliminar sea el ultimo de la lista
-        {
-          gp->rear = gp->rear->sense->prev;
-          gp->front->sense->prev = gp->rear;
-          gp->rear->sense->next = gp->front;
-        }
-        else  //Caso en el que el grupo a eliminar sea cualquier otro elemento
-        {
-          elm->sense->next->sense->prev = elm->sense->prev;
-          elm->sense->prev->sense->next = elm->sense->next;
-        }
+          if(elm == gp->front)  //Caso en el que el grupo a eliminar sea el primero de la lista
+          {
+            gp->front = gp->front->sense->next;
+            gp->front->sense->prev = gp->rear;
+            gp->rear->sense->next = gp->front;
+          }
+          else
+            if(elm == gp->rear) //Caso en el que el grupo a eliminar sea el ultimo de la lista
+            {
+              gp->rear = gp->rear->sense->prev;
+              gp->front->sense->prev = gp->rear;
+              gp->rear->sense->next = gp->front;
+            }
+            else  //Caso en el que el grupo a eliminar sea cualquier otro elemento
+            {
+              elm->sense->next->sense->prev = elm->sense->prev;
+              elm->sense->prev->sense->next = elm->sense->next;
+            }
         free( elm );
+        printf("Grupo eliminado.\n");
       }
       else
       printf("No se puede eliminar el grupo, tiene procesos pendientes.\n");
@@ -255,41 +260,39 @@ int del_grupo(pcbCtrl *ctrl, pcbStates *states, groupsCtrl *gp)
     else
     {
       if(gp->front == gp->rear) //Caso en el que solo haya un grupo en la lista de grupos
-      gp->front = gp->rear = NULL;
+        gp->front = gp->rear = NULL;
       else
-      if(elm == gp->front)  //Caso en el que el grupo a eliminar sea el primero de la lista
-      {
-        gp->front = gp->front->sense->next;
-        gp->front->sense->prev = gp->rear;
-        gp->rear->sense->next = gp->front;
-      }
-      else
-      if(elm == gp->rear) //Caso en el que el grupo a eliminar sea el ultimo de la lista
-      {
-        gp->rear = gp->rear->sense->prev;
-        gp->front->sense->prev = gp->rear;
-        gp->rear->sense->next = gp->front;
-      }
-      else  //Caso en el que el grupo a eliminar sea cualquier otro elemento
-      {
-        elm->sense->next->sense->prev = elm->sense->prev;
-        elm->sense->prev->sense->next = elm->sense->next;
-      }
+        if(elm == gp->front)  //Caso en el que el grupo a eliminar sea el primero de la lista
+        {
+          gp->front = gp->front->sense->next;
+          gp->front->sense->prev = gp->rear;
+          gp->rear->sense->next = gp->front;
+        }
+        else
+          if(elm == gp->rear) //Caso en el que el grupo a eliminar sea el ultimo de la lista
+          {
+            gp->rear = gp->rear->sense->prev;
+            gp->front->sense->prev = gp->rear;
+            gp->rear->sense->next = gp->front;
+          }
+          else  //Caso en el que el grupo a eliminar sea cualquier otro elemento
+          {
+            elm->sense->next->sense->prev = elm->sense->prev;
+            elm->sense->prev->sense->next = elm->sense->next;
+          }
       free( elm );
     }
   }
   else
     printf("No existen grupos.\n");
-
-
 }
 /*0_Eliminacion de grupo junto con sus procesos*/
 /*1_Retorna la cantidad de nodos de una lista*/
 int list_lenghtG(pcbCtrl *ctrl)
 {
-  int i = 0;
+  int i = 1;
   pcb *front = ctrl->front;
-  while(next_pcbG(front,  ctrl->front) != FAIL)
+  while(next_pcbG(&front,  ctrl->front) != FAIL)
     i++;
   return i;
 }
