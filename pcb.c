@@ -259,7 +259,9 @@ void create_process(int cpp,pcbCtrl *ctrl, pcbStates *states, groupsCtrl *ctrlG,
               ctrl->front = create_pcb_mem();//se asigna la memoria para el proceso
               if(ctrl->front != NULL)
               {
+
                 /*Asignacion de los campos al nuevo proceso*/
+                printf("Asignando informacion al proceso...\n");
                 ctrl->front->cp = cpp;
                 ctrl->front->state = ID_LIS;
                 ctrl->front->pid = p[0];
@@ -272,6 +274,7 @@ void create_process(int cpp,pcbCtrl *ctrl, pcbStates *states, groupsCtrl *ctrlG,
 
                 /*asignación del proceso a la lista de
                 procesos del grupo correspondiente*/
+                printf("Ligando proceso con su grupo...\n");
                 g->pcbG->front = ctrl->front;
                 g->pcbG->rear = g->pcbG->front;
                 g->pcbG->rear->groupSense->prev = g->pcbG->front;
@@ -281,6 +284,7 @@ void create_process(int cpp,pcbCtrl *ctrl, pcbStates *states, groupsCtrl *ctrlG,
 
                 /*asignación del proceso a la lista de
                 procesos del usuario correspondiente*/
+                printf("Ligando proceso con su usuario...\n");
                 u->pcbU->front = ctrl->front;
                 u->pcbU->rear = u->pcbU->front;
                 u->pcbU->rear->userSense->prev = u->pcbU->front;
@@ -296,12 +300,14 @@ void create_process(int cpp,pcbCtrl *ctrl, pcbStates *states, groupsCtrl *ctrlG,
                 ctrl->front->sense->next = ctrl->rear;
 
                 /*Asignamos la lista de ejecucion */
+                printf("Encolando elemento a la lista de ejecucion...\n");
                 states->readys->front = ctrl->front;
                 states->readys->rear = states->readys->front;
                 states->readys->rear->stateSense->next = states->readys->front;
                 states->readys->rear->stateSense->prev = states->readys->front;
                 states->readys->front->sense->prev = states->readys->rear;
                 states->readys->front->stateSense->next = states->readys->rear;
+                printf("Proceso creado.\n");
               }
               else
                 printf("%s\n",MEM_FAIL);
@@ -313,7 +319,10 @@ void create_process(int cpp,pcbCtrl *ctrl, pcbStates *states, groupsCtrl *ctrlG,
               {
                 ctrl->rear->sense->next->sense->prev = ctrl->rear;
                 ctrl->rear = ctrl->rear->sense->next;
+                ctrl->rear->sense->next = ctrl->front;
+                ctrl->front->sense->prev = ctrl->rear;
 
+                printf("Asignando informacion al proceso...\n");
                 ctrl->rear->cp = cpp;
                 ctrl->rear->state = ID_LIS;
                 ctrl->rear->pid = p[0];
@@ -325,21 +334,13 @@ void create_process(int cpp,pcbCtrl *ctrl, pcbStates *states, groupsCtrl *ctrlG,
                 ctrl->rear->group = g;
 
                 if(ctrl->rear->sense->prev->gen != -1)
-                ctrl->rear->sense->prev->gen = 0;
-
-                ctrl->rear->sense->next = ctrl->front;
-                ctrl->front->sense->prev = ctrl->rear;
-
-                states->readys->rear->stateSense->next = ctrl->rear;
-                states->readys->rear->stateSense->next->stateSense->prev = ctrl->rear;
-                states->readys->rear = states->readys->rear->stateSense->next;
-                states->readys->rear->stateSense->next = states->readys->front;
-                states->readys->front->stateSense->prev = states->readys->rear;
+                  ctrl->rear->sense->prev->gen = 0;
 
                 /*Asignación del proceso a la lista de
                 procesos del grupo correspondiente*/
                 /*En caso de que el grupo no tenga procesos
                 asignados  */
+                printf("Ligando proceso con su grupo...\n");
                 if(g->pcbG->front == NULL)
                 {
                   g->pcbG->front = ctrl->rear;
@@ -364,6 +365,7 @@ void create_process(int cpp,pcbCtrl *ctrl, pcbStates *states, groupsCtrl *ctrlG,
                 procesos del usuario correspondiente*/
                 /*En caso de que el usuario no tenga procesos
                 asignados  */
+                printf("Ligando proceso con su usuario...\n");
                 if(u->pcbU->front == NULL)
                 {
                   u->pcbU->front = ctrl->rear;
@@ -383,6 +385,26 @@ void create_process(int cpp,pcbCtrl *ctrl, pcbStates *states, groupsCtrl *ctrlG,
                   u->pcbU->rear->userSense->next = u->pcbU->front;
                   u->pcbU->front->userSense->prev = u->pcbU->rear;
                 }
+
+                printf("Encolando elemento a la lista de ejecucion...\n");
+                if(states->readys->front == NULL)
+                {
+                  states->readys->front = ctrl->rear;
+                  states->readys->rear = states->readys->front;
+                  states->readys->rear->stateSense->next = states->readys->front;
+                  states->readys->rear->stateSense->prev = states->readys->front;
+                  states->readys->front->sense->prev = states->readys->rear;
+                  states->readys->front->stateSense->next = states->readys->rear;
+                }
+                else
+                {
+                  states->readys->rear->stateSense->next = ctrl->rear;
+                  states->readys->front->stateSense->prev = ctrl->rear;
+                  states->readys->rear->stateSense->next->stateSense->prev = ctrl->rear;
+                  states->readys->rear = states->readys->rear->stateSense->next;
+                  states->readys->rear->stateSense->next = states->readys->front;
+                }
+                printf("Proceso creado.\n");
               }
               else
               printf("%s\n",MEM_FAIL);
@@ -470,8 +492,9 @@ void rr(pcbStates *states, pcbCtrl *ctrl, int quantum, int *totalTime)
           *totalTime += execute(quantum,states->readys->front);
           printf("Proceso terminando ejecucion en tiempo: %i\n",*totalTime);
           temp = find_pcb(states->readys->front->pid,ctrl->front);
-          temp->state = ID_ESP;
+          temp->state = ID_LIS;
           changer(states->sleeping,temp,states);
+          temp->state = ID_DOR;
         }
         else
         {
@@ -483,6 +506,7 @@ void rr(pcbStates *states, pcbCtrl *ctrl, int quantum, int *totalTime)
           temp->state = ID_ESP;
         }
       }
+      temp->first_exe = 1;
     }
     else
     {
@@ -1077,133 +1101,85 @@ void changer(pcbCtrl *lista, pcb *elm, pcbStates *states)
   {
     case 2:
       if(states->readys->front->stateSense->next == states->readys->front)
-      {
-        printf("1-L\n");
-
         states->readys->rear = states->readys->front = NULL;
-
-        printf("1.1-L\n");
-
-        flag++;
-      }
       else
         if(elm == states->readys->front)
         {
-          printf("2-L\n");
-
           states->readys->front->stateSense->next->stateSense->prev = states->readys->rear;
           states->readys->front = states->readys->front->stateSense->next;
           states->readys->rear->stateSense->next = states->readys->front;
-          flag++;
         }
         else
           if(elm == states->readys->rear)
           {
-            printf("3-L\n");
-
             states->readys->rear->stateSense->prev->stateSense->next = states->readys->front;
             states->readys->rear = states->readys->rear->stateSense->prev;
             states->readys->front->stateSense->prev = states->readys->rear;
-            flag++;
           }
+      flag++;
       break;
     case 3:
       if(states->waiting->front->stateSense->next == states->waiting->front)
-      {
-        printf("1-E\n");
-
         states->waiting->rear = states->waiting->front = NULL;
-        flag++;
-      }
       else
         if(elm == states->waiting->front)
         {
-          printf("2-E\n");
-
           states->waiting->front->stateSense->next->stateSense->prev = states->waiting->rear;
           states->waiting->front = states->waiting->front->stateSense->next;
           states->waiting->rear->stateSense->next = states->waiting->front;
-          flag++;
         }
         else
           if(elm == states->waiting->rear)
           {
-            printf("3-E\n");
-
             states->waiting->rear->stateSense->prev->stateSense->next = states->waiting->front;
             states->waiting->rear = states->waiting->rear->stateSense->prev;
             states->waiting->front->stateSense->prev = states->waiting->rear;
-            flag++;
           }
+      flag++;
       break;
     case 4:
       if(states->sleeping->front->stateSense->next == states->sleeping->front)
-      {
-        printf("1-D\n");
-
         states->sleeping->rear = states->sleeping->front = NULL;
-        flag++;
-      }
       else
         if(elm == states->sleeping->front)
         {
-          printf("1-D\n");
-
           states->sleeping->front->stateSense->next->stateSense->prev = states->sleeping->rear;
           states->sleeping->front = states->sleeping->front->stateSense->next;
           states->sleeping->rear->stateSense->next = states->sleeping->front;
-          flag++;
         }
         else
           if(elm == states->sleeping->rear)
           {
-            printf("2-D\n");
-
             states->sleeping->rear->stateSense->prev->stateSense->next = states->sleeping->front;
             states->sleeping->rear = states->sleeping->rear->stateSense->prev;
             states->sleeping->front->stateSense->prev = states->sleeping->rear;
-            flag++;
           }
+      flag++;
       break;
   }
 
   if(flag == 0) //Cualquier otra posicion en las listas
   {
-    printf("E-ELSE\n");
-
     elm->stateSense->next->stateSense->prev = elm->stateSense->prev;
     elm->stateSense->prev->stateSense->next = elm->stateSense->next;
-    printf("E.1-ELSE\n");
-
   }
   //0_Eliminaion del estado en su lista de estado previo
 
   //Adicion del elemento a la nueva lista
   if(lista->front != NULL)
   {
-    printf("Mover\n");
     elm->stateSense->next = lista->front;
-    printf("Mover.1\n");
     elm->stateSense->prev = lista->rear;
-    printf("Mover.2\n");
     lista->front->stateSense->prev = elm;
-    printf("Mover.3\n");
     lista->rear->stateSense->next = elm;
-    printf("Mover.4\n");
     lista->rear = elm;
   }
   else
   {
-    printf("Mover.NULL\n");
-    printf("Mover\n");
     lista->front = elm;
-    printf("Mover.1\n");
     lista->rear = elm;
-    printf("Mover.2\n");
     elm->stateSense->next = elm;
-    printf("Mover.3\n");
     elm->stateSense->prev = elm;
-    printf("Mover.4\n");
   }
 }
 /*1_changer*/

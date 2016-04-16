@@ -166,9 +166,9 @@ users* find_user(int uid, users *front)
 /*1_Retorna la cantidad de nodos de una lista*/
 int list_lenghtU(pcbCtrl *ctrl)
 {
-  int i = 0;
+  int i = 1;
   pcb *front = ctrl->front;
-  while(next_pcbU(front,  ctrl->front) != FAIL)
+  while(next_pcbU(&front,  ctrl->front) != FAIL)
     i++;
 
   return i;
@@ -199,10 +199,12 @@ int del_user(pcbCtrl *ctrl, pcbStates *states, usersCtrl *us)
       elm = find_user(eleccion, us->front);
     }while( val_mem( (void *) elm) );
 
+    printf("Procesando...\n");
     if(elm->pcbU->front != NULL)
     {
+      printf("Calculando la cantidad de procesos relacionados...\n");
       int tam = list_lenghtU( elm->pcbU );
-      int i = 0;
+      i = 0;
 
       if(tam > 0)
       {
@@ -211,12 +213,13 @@ int del_user(pcbCtrl *ctrl, pcbStates *states, usersCtrl *us)
         {
           if(temp->state == 4)
           i++;
-        }while( next_pcbU(temp = elm->pcbU->front) != FAIL);
+        }while( next_pcbU(&temp, elm->pcbU->front) != FAIL);
       }
+      printf("Procesos relacionados:\nDormidos: %i Otros:%i\n", i, tam);
 
       if(i == tam)
       {
-
+        printf("Eliminando procesos relacionados al usuario...\n");
         do //Ciclo para eliminar los procesos relacionados al usuario
         {
           if(elm->pcbU->front == elm->pcbU->rear)
@@ -234,7 +237,9 @@ int del_user(pcbCtrl *ctrl, pcbStates *states, usersCtrl *us)
             del_pcss_reaper(ctrl, states, aux);
           }
         }while(1);
+        printf("Procesos eliminados.\n");
 
+        printf("Eliminando usuario...\n");
         if(us->front == us->rear)
         us->front = us->rear = NULL;
         else
@@ -257,6 +262,7 @@ int del_user(pcbCtrl *ctrl, pcbStates *states, usersCtrl *us)
           elm->sense->prev->sense->next = elm->sense->next;
         }
         free( elm );
+        printf("Usuario eliminado.\n");
       }
       else
       printf("No se puede eliminar el grupo, tiene procesos pendientes.\n");
