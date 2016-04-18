@@ -259,7 +259,6 @@ void create_process(int cpp,pcbCtrl *ctrl, pcbStates *states, groupsCtrl *ctrlG,
               ctrl->front = create_pcb_mem();//se asigna la memoria para el proceso
               if(ctrl->front != NULL)
               {
-
                 /*Asignacion de los campos al nuevo proceso*/
                 printf("Asignando informacion al proceso...\n");
                 ctrl->front->cp = cpp;

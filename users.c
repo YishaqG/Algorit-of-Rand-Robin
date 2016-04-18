@@ -309,8 +309,8 @@ int set_user(users **u,usersCtrl *ctrlU)
   {
     printf("%s %s\n\n",SELEC, "un usuario");
     show_users(ctrlU);
-
-    scanf(">%i",&uid);
+    printf(">");
+    scanf("%i",&uid);
     getchar();
 
     *u = find_user(uid,ctrlU->front);

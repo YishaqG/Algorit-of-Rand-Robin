@@ -93,7 +93,7 @@ void create_group(groupsCtrl *ctrlG)
   int gid;
   char *name = create_string_mem(TAM_BUFF);
   if((gid = set_gid(ctrlG->front)) > 0)
-  {    
+  {
     if(check_name(ctrlG->front,name) >= 0)
     {
       if(ctrlG->front == NULL)
@@ -305,8 +305,8 @@ int set_group(groups **g, groupsCtrl *ctrlG)
   {
     printf("%s %s\n\n",SELEC, "un grupo");
     show_groups(ctrlG);
-
-    scanf(">%i",&gid);
+    printf(">");
+    scanf("%i",&gid);
     getchar();
 
     *g = find_group(gid,ctrlG->front);
