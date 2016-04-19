@@ -68,32 +68,32 @@ int main()
       switch(op)
       {
         case 1:
-        printf("\n");        
+        printf("\n");
           create_group(ctrlG);
           break;
         case 2:
-        printf("\n");        
+        printf("\n");
           create_user(ctrlU);
           break;
         case 3:
-        printf("\n");        
+        printf("\n");
           create_process(cpp,ctrl,states,ctrlG,ctrlU);
           cpp++;
           break;
         case 4:
-        printf("\n");        
+        printf("\n");
           state_change(ctrl,states);
           break;
         case 5:
-        printf("\n");        
+        printf("\n");
           show_everything(ctrl,states,ctrlG,ctrlU);
           break;
         case 6:
-        printf("\n");        
+        printf("\n");
           rr(states, ctrl, quantum, &totalTime);
           break;
         case 7:
-        printf("\n");        
+        printf("\n");
           del_option(ctrl,states,ctrlG,ctrlU);
           break;
         case 8:

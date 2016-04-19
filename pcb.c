@@ -1046,60 +1046,65 @@ void state_change(pcbCtrl *ctrl, pcbStates *states)
   int eleccion, estado,t;
   pcb *elm = NULL;
 
-  do
+  if(ctrl->front != NULL)
   {
     do
     {
-      printf("\nIntroduzca el ID del proceso al cual desea cambiar su estado:\n");
-      show_pcb(ctrl);
       do
       {
-        printf("\n>");
-        scanf("%i", &eleccion);
-        getchar();
-      }while(val_npos(eleccion, 0) == FAIL);
-      elm = find_pcb(eleccion, ctrl->front);
-    }while( val_mem( (void *) elm) );
+        printf("\nIntroduzca el ID del proceso al cual desea cambiar su estado:\n");
+        show_pcb(ctrl);
+        do
+        {
+          printf("\n>");
+          scanf("%i", &eleccion);
+          getchar();
+        }while(val_npos(eleccion, 0) == FAIL);
+        elm = find_pcb(eleccion, ctrl->front);
+      }while( val_mem( (void *) elm) );
 
-    printf("\nNuevo estado del proceso:\n");
-    estado = print_states(1);
+      printf("\nNuevo estado del proceso:\n");
+      estado = print_states(1);
 
-    switch (estado)
-    {
-      case 2: //Listo
-          if( elm->state == ID_DOR )
-          {
-            do
+      switch (estado)
+      {
+        case 2: //Listo
+            if( elm->state == ID_DOR )
             {
-              printf("Introduzca el nuevo tiempo del proceso:\n>");
-              scanf("%i",&t);
-              getchar();
-            }while(val_npos(t, 0) != FAIL);
+              do
+              {
+                printf("Introduzca el nuevo tiempo del proceso:\n>");
+                scanf("%i",&t);
+                getchar();
+              }while(val_npos(t, 0) != FAIL);
 
-            elm->tim[1] = elm->tim[0] = t;
-            elm->tim[2] = 0;
+              elm->tim[1] = elm->tim[0] = t;
+              elm->tim[2] = 0;
 
-            changer( states->readys, elm, states );
-            elm->state = ID_LIS;
-          }
-          else
-            if( elm->state == ID_ESP )
-            {
               changer( states->readys, elm, states );
               elm->state = ID_LIS;
             }
             else
-              printf("No se puede cambiar el proceso a este estado.\n");
-        break;
-      case 5:
-        break;
-      default:
-        printf("Estado inexistente o imposible operar con el, cambios habilitadsos de Dormido-Listo y de Esperando-Listo.\n");
-        printf("Vuelva a intentarlo.\n");
-        estado = FAIL;
-        break;
-    }
-  }while(estado == FAIL);
+              if( elm->state == ID_ESP )
+              {
+                changer( states->readys, elm, states );
+                elm->state = ID_LIS;
+              }
+              else
+                printf("No se puede cambiar el proceso a este estado.\n");
+          break;
+        case 5:
+          break;
+        default:
+          printf("Estado inexistente o imposible operar con el, cambios habilitadsos de Dormido-Listo y de Esperando-Listo.\n");
+          printf("Vuelva a intentarlo.\n");
+          estado = FAIL;
+          break;
+      }
+    }while(estado == FAIL);
+  }
+  else
+    printf("%s Crea procesos primero.\n", EMPTY_FAIL);
 
 }
 /*0_state_change*/
