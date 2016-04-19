@@ -136,7 +136,7 @@ void show_users(usersCtrl *ctrlU)
   {
     f = ctrlU->front;
 
-    printf("\n\n    USUARIOS EXISTENTES\n");
+    printf("\n    USUARIOS EXISTENTES\n");
     printf("|%7s|%15s|\n","ID","Descripcion");
     printf("=========================\n");
     do
@@ -307,7 +307,7 @@ int set_user(users **u,usersCtrl *ctrlU)
   int uid,flag = 1;
   do
   {
-    printf("%s %s\n\n",SELEC, "un usuario");
+    printf("\n%s %s\n",SELEC, "un usuario");
     show_users(ctrlU);
     printf(">");
     scanf("%i",&uid);

@@ -137,7 +137,7 @@ void show_groups(groupsCtrl *ctrlG)
   {
     f = ctrlG->front;
 
-  printf("\n\n    GRUPOS EXISTENTES\n");
+  printf("    GRUPOS EXISTENTES\n");
     printf("|%7s|%15s|\n","ID","Descripcion");
     printf("=========================\n");
     do
@@ -303,7 +303,7 @@ int set_group(groups **g, groupsCtrl *ctrlG)
   int gid,flag = 1;
   do
   {
-    printf("%s %s\n\n",SELEC, "un grupo");
+    printf("\n%s un grupo\n\n",SELEC);
     show_groups(ctrlG);
     printf(">");
     scanf("%i",&gid);
@@ -355,7 +355,7 @@ int check_name(groups *front,char*n)
   do
   {
     printf("Ingrese el nombre del nuevo grupo: \n");
-    printf(">\n");
+    printf(">");
     scanf("%[^\n]", n);
 
     if(strlen(n) > TAM_BUFF)

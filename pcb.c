@@ -260,7 +260,7 @@ void create_process(int cpp,pcbCtrl *ctrl, pcbStates *states, groupsCtrl *ctrlG,
               if(ctrl->front != NULL)
               {
                 /*Asignacion de los campos al nuevo proceso*/
-                printf("Asignando informacion al proceso...\n");
+                printf("\nAsignando informacion al proceso...\n");
                 ctrl->front->cp = cpp;
                 ctrl->front->state = ID_LIS;
                 ctrl->front->pid = p[0];
@@ -321,7 +321,7 @@ void create_process(int cpp,pcbCtrl *ctrl, pcbStates *states, groupsCtrl *ctrlG,
                 ctrl->rear->sense->next = ctrl->front;
                 ctrl->front->sense->prev = ctrl->rear;
 
-                printf("Asignando informacion al proceso...\n");
+                printf("\nAsignando informacion al proceso...\n");
                 ctrl->rear->cp = cpp;
                 ctrl->rear->state = ID_LIS;
                 ctrl->rear->pid = p[0];
